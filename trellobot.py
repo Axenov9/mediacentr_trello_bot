@@ -30,8 +30,7 @@ import traceback
 import json # for exceptions:/
 # # # #
 import requests
-from colorama import init, Fore
-init()
+
 # # # #
 from config import telegram_api_token, actions_api, chat_id, set_logging, delay
 
