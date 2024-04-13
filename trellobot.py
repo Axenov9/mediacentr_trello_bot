@@ -1,41 +1,19 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
- * Copyright (C) 2023 Nikita Beloglazov <nnikita.beloglazov@gmail.com>
- *
- * This file is part of Nebobot/Trello-Telegram-Bot.
- *
- * Nebobot/Trello-Telegram-Bot is free software; you can redistribute it and/or
- * modify it under the terms of the Mozilla Public License 2.0
- * published by the Mozilla Foundation.
- *
- * Nebobot/Trello-Telegram-Bot is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY.
- *
- * You should have received a copy of the Mozilla Public License 2.0
- * along with Nebobot/Trello-Telegram-Bot.
- * If not, see https://mozilla.org/en-US/MPL/2.0.
- *
- * Description: Main program. Regularly checks trello and reports events.
- * Version: 1.1
-"""
-
 import sys
 if sys.version_info < (3, 9):
 	print("[FATAL] Python 3.9 or newer is required!")
 	sys.exit(1)
-# # # #
+# # # # # # # # # #
+
 import time
 import traceback
 import json
 import requests
+# # # # # # # # # #
 
-# # # #
 from config import telegram_api_token, actions_api, chat_id, set_logging, delay
+# # # # # # # # # #
 
-print(1)
-def say(message, chat_id):
-	""" A imprortant feature for sending messages to telegram by a bot """
+def say(message, chat_id): # Надо будет нахуй переделать, чтобы работало через pytelegrambotapi
 	message = message.replace("	","")
 	print(message)
 	result = requests.post(f"https://api.telegram.org/bot{telegram_api_token}/sendMessage",
@@ -46,19 +24,18 @@ def say(message, chat_id):
 		"disable_web_page_preview": "true",
 		}, timeout=30).text
 	return result
+# # # # # # # # # #
 
-# # # #
-
-result_old = requests.get(actions_api, timeout=60).json()
+result_old = requests.get(actions_api, timeout=60).json() # Первый запрос, чтобы впоследствие было с чем сравнивать
 if "old" not in result_old[0]["data"]:
 	result_old[0]["data"]["old"] = {} # if not exists
-# # # # # # # # # # # #
+# # # # # # # # # #
 
 print("[#] Trello bot started..")
 print("Delay: " + str(delay) + " sec")
 while True:
 	# # # # # # # # # #
-	while True: # make error catching, retry request if error occurs
+	while True:
 		try:
 			result_new = requests.get(actions_api, timeout=60).json()
 			break
@@ -70,12 +47,12 @@ while True:
 
 	if "old" not in result_new[0]["data"]:
 		result_new[0]["data"]["old"] = {} # if not exists
+	# # # # # # # # # #
 
-
-	# # # # # # # # # # # #
 	if result_old[0] != result_new[0]:
 		event_data = result_new[0]["data"]
-		# # # # # # # # # # # # # # # # # # # # # # # # # # #
+		# # # # # # # # # #
+
 		if "card" not in event_data:
 			pass
 
@@ -90,17 +67,10 @@ while True:
 
 		# RENAMING CARD #
 		elif "name" in event_data["old"]:
-			Old_name = event_data['old']['name']
-			Name = event_data['card']['name']
+			old_name = event_data['old']['name']
+			card_name = event_data['card']['name']
 			link = event_data['card']['shortLink']
-
-			msg = f"""🗄️ Переименование карточки с состоянием {event_data['list']['name']}!
-
-<i>{Old_name}</i>
-
-<code>-= 🔽 🔽 🔽 =-</code>
-				
-<a href='https://trello.com/c/{link}'><b>{Name}</b></a>"""
+			msg = f'''Задача <i>{old_name}</i> переименована в <a href='https://trello.com/c/{link}'><b>{card_name}</b></a>'''
 
 			say(msg, chat_id)
 
@@ -109,6 +79,7 @@ while True:
 			card_name = event_data['card']['name']
 			link = event_data['card']['shortLink']
 			msg = f"""🔥 Добавлена новая задача - <a href='https://trello.com/c/{link}'><b>{card_name}</b></a>"""
+
 			say(msg, chat_id)
 
 		# ADDING MEMBER/LEAVING FROM CARD #
@@ -118,19 +89,21 @@ while True:
 			link = event_data['card']['shortLink']
 			msg = f'''🔥 <b>{member}</b> {'взял(а)' if not 'deactivated' in event_data else 'бросил(а)'} задачу <a href='https://trello.com/c/{link}'><b>{card_name}</b></a>'''
 
+			say(msg, chat_id)
 
 		# ARCHIVING CARD #
 		elif "closed" in event_data['card']:
 			card_name = event_data['card']['name']
 			link = event_data['card']['shortLink']
 			msg = f'''🗑️ Задача <a href='https://trello.com/c/{link}'><i>{card_name}</i></a> <b>архивирована</b>'''
+
 			say(msg, chat_id)
 
-
+		# ANOTHER EVENT #
 		# else:
-		# 	say("❗ Новое событие на Trello.\nНо мне не удалось отобразить изменения.\n\n📃 Дополнительная инфомация была записана в unknown_events.log", chat_id)
-		# 	with open("unknown_events.log", "w", encoding="utf-8") as f:
-		# 		f.write("\n\n" + str(result_new[0]))
-		# # # # # # # # # # # # # # # # # # # # # # # # # # # #
+		# 	msg = '<i>Неизвестное событие</i>'
+		# 	say(msg, chat_id)
+		# # # # # # # # # #
+
 	result_old = result_new
 	time.sleep(delay)
