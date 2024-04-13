@@ -35,7 +35,7 @@ init()
 # # # #
 from config import telegram_api_token, actions_api, chat_id, set_logging, delay
 
-
+print(1)
 def say(message, chat_id):
 	""" A imprortant feature for sending messages to telegram by a bot """
 	message = message.replace("	","")
