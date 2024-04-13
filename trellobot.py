@@ -27,8 +27,7 @@ if sys.version_info < (3, 9):
 # # # #
 import time
 import traceback
-import json # for exceptions:/
-# # # #
+import json
 import requests
 
 # # # #
