@@ -81,12 +81,12 @@ while True:
 
 		# MOVING CARD #
 		elif "listBefore" in event_data and "listAfter" in event_data:
-			temp1 = event_data['card']['name'].replace("<", "&lt;").replace(">", "&gt;") # capitalize first letter
-			temp1 = temp1[0].upper() + temp1[1:] # capitalize first letter
+			card_name = event_data['card']['name']
+			link = event_data['card']['shortLink']
+			lest_after = event_data['listAfter']['name']
+			msg = f"""Задача <a href='https://trello.com/c/{link}'><b>{card_name}</b></a> перемещена в <b>{lest_after}</b>"""
 
-			say(f"""🗄️ <b>{temp1}</b>
-
-				<code>{event_data['listBefore']['name']}</code> <b>-></b> <code>{event_data['listAfter']['name']}</code>""", chat_id)
+			say(msg, chat_id)
 
 		# RENAMING CARD #
 		elif "name" in event_data["old"]:
