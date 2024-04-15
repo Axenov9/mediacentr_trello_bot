@@ -1,4 +1,3 @@
-__pycache__
-README.md
-unknown_events.log
-config.py
+# Default ignored files
+/venv/
+secrets.py
