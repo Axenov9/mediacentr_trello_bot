@@ -5,7 +5,7 @@ import requests
 import locale
 
 
-from config import actions_api, chat_id, delay, BOARD_ID, exclude_lists_names
+from config import chat_id, delay, BOARD_ID, exclude_lists_names
 from trello_api_requests import *
 def new_actions(new, old):
     actions = []
