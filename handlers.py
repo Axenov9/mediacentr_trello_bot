@@ -13,6 +13,12 @@ class handler():
             text = '''Это бот бла бла бла, он ничего не умеет'''
             self.bot.send_message(message.chat.id, text, parse_mode='Markdown', reply_to_message_id=message.message_id)
 
+        @self.bot.message_handler(commands=['all_tasks'])
+        def handle(message):
+            print(message.from_user.username + ": " + message.text)
+            text = all_tasks(self.bot)
+            self.bot.send_message(message.chat.id, text, parse_mode='HTML')
+
         # CALLS
         # Пример работы с call
         # @self.bot.callback_query_handler(func=lambda call: 'marks' in call.data)
